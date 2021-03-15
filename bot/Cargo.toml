@@ -1,0 +1,16 @@
+[package]
+name = "bot"
+version = "0.1.0"
+authors = ["loyston500 <loyston500@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lazy_static = "1.4.0"
+reqwest = "0.11.1"
+serde = "1.0.123"
+serenity = "0.10.2"
+shlex = "1.0.0"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+toml = "0.5.8"

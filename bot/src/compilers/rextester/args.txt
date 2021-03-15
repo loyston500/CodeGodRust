@@ -1,0 +1,11 @@
+# syntax: ID *ARGS
+6  -Wall -std=gnu99 -O2 -o a.out source_file.c
+7  -Wall -std=c++14 -O2 -o a.out source_file.cpp
+9  -MMD -MP -DGNUSTEP -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGNUSTEP_BASE_LIBRARY=1 -fno-strict-aliasing -fexceptions -fobjc-exceptions -D_NATIVE_OBJC_EXCEPTIONS -pthread -fPIC -Wall -DGSWARN -DGSDIAGNOSE -Wno-import -g -O2 -fgnu-runtime -fconstant-string-class=NSConstantString -I. -I /usr/include/GNUstep -I/usr/include/GNUstep -o a.out source_file.m -lobjc -lgnustep-base
+29  source_file.c -o a.exe
+11  -o a.out source_file.hs
+20  -o a.out source_file.go
+26  -Wall -std=gnu99 -O2 -o a.out source_file.c
+27  -Wall -std=c++14 -stdlib=libc++ -O2 -o a.out source_file.cpp
+28  source_file.cpp -o a.exe /EHsc /MD /I Coost_1_60_0 /link /LIBPATH:Coost_1_60_0\stage\lib
+30  source_file.d -ofa.out

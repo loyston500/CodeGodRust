@@ -1,0 +1,3 @@
+name = 'CodeGod'
+prefix = 'cgr.'
+bot_token_var = 'DISCORD_TOKEN'

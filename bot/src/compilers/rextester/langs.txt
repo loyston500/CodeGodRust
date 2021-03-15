@@ -1,0 +1,47 @@
+# syntax: NAME1 | NAME2... ID
+py | python   24
+cs            1
+vb.net        2
+fs            3
+java          4
+python2 | py2 5
+gcc           6
+gccpp         7
+php           8
+pascal        9
+objective-c   10
+haskell       11
+ruby          12
+perl          13
+lua           14
+nasm          15
+sqlserver | sql   16
+javascript | js   17
+lisp   18
+prolog   19
+go   20
+scala   21
+scheme   22
+nodejs | node   23
+octave   25
+c   26
+cpp | cpp   27
+vcpp | vcpp   28
+vc   29
+d   30
+r   31
+tcl   32
+mysql   33
+postgresql   34
+oracle   35
+swift   37
+bash   38
+ada   39
+erlang   40
+elixir   41
+ocaml   42
+kotlin   43
+brainf | brainfuck   44
+fortran   45
+rust | rs   46
+clojure   47
