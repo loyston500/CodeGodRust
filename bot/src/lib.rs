@@ -5,15 +5,19 @@ mod utils;
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_parse_args() {
-        dbg!(utils::parser::parse_args(String::from("inp1 inp2 -g value1 -h value 2 -f 'this is a long argument' --goo --foo")).unwrap());
+        dbg!(utils::parser::parse_args(String::from(
+            "inp1 inp2 -g value1 -h value 2 -f 'this is a long argument' --goo --foo"
+        ))
+        .unwrap());
     }
 
     #[test]
     fn test_parse_codeblocks() {
-        dbg!(utils::parser::parse_codeblocks(String::from("
+        dbg!(utils::parser::parse_codeblocks(String::from(
+            "
         --foo some random stuff
         lol abcdedf ```py
         print(69)
@@ -24,9 +28,12 @@ mod tests {
         console.log('some other code')
         ```
         again some extra text
-        ")).unwrap());
+        "
+        ))
+        .unwrap());
 
-        dbg!(utils::parser::parse_codeblocks(String::from("
+        dbg!(utils::parser::parse_codeblocks(String::from(
+            "
         ```py
         print(69)
         print('the code')```
@@ -34,7 +41,9 @@ mod tests {
         ```js
         console.log('some other code')```
         again some extra text
-        ")).unwrap());
+        "
+        ))
+        .unwrap());
     }
 
     #[test]
@@ -44,23 +53,29 @@ mod tests {
 
     #[test]
     fn test_rextester_parse_langs() {
-        dbg!(compilers::rextester::client::parse_langs(String::from("
+        dbg!(compilers::rextester::client::parse_langs(String::from(
+            "
         # this is a comment
         py | python | pyth 69
         js |javascript|    cringe 53
         rust | best|aaa 43
         # this is another commment.
 
-        ")).unwrap());
+        "
+        ))
+        .unwrap());
     }
 
     #[test]
     fn test_rextester_parse_lang_args() {
-        dbg!(compilers::rextester::client::parse_lang_args(String::from("
+        dbg!(compilers::rextester::client::parse_lang_args(String::from(
+            "
         1 -foo bar /555
         2         -bar -5
         3 66 -- 5
         # this is a comment.
-        ")).unwrap());
+        "
+        ))
+        .unwrap());
     }
 }

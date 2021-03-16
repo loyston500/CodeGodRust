@@ -11,9 +11,7 @@ pub fn get_file_content(file_name: &str) -> Result<String, ()> {
     let mut content = String::new();
     match file.read_to_string(&mut content) {
         Ok(_) => (),
-        Err(_) => {
-            return Err(())
-        }    
+        Err(_) => return Err(()),
     };
     Ok(content)
 }

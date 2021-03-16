@@ -1,7 +1,9 @@
 use shlex::split as shlex_split;
 use std::collections::{HashMap, HashSet};
 
-pub fn parse_args<S: AsRef<str>>(content: S) -> Result<(HashMap<String, String>, Vec<String>, HashSet<String>), String> {
+pub fn parse_args<S: AsRef<str>>(
+    content: S,
+) -> Result<(HashMap<String, String>, Vec<String>, HashSet<String>), String> {
     let content = content.as_ref().to_string();
     let tokens: Vec<String> = match shlex_split(content.as_str()) {
         Some(some) => some,
@@ -50,6 +52,6 @@ pub fn parse_codeblock_lang<S: AsRef<str>>(content: S) -> Result<(String, String
     let content = content.as_ref().to_string();
     match content.split_once("\n") {
         Some(some) => Ok((some.0.to_string(), some.1.to_string())),
-        None => Err(String::from("bad codeblock syntax."))
+        None => Err(String::from("bad codeblock syntax.")),
     }
 }

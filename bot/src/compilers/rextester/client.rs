@@ -17,7 +17,12 @@ pub struct ApiResponse {
     pub Errors: Option<String>,
 }
 
-pub async fn post_request<S: AsRef<str>, T: AsRef<str>, U: AsRef<str>, V: AsRef<str>>(code: S, id: T, input: U, args: V) -> Result<Response, String> {
+pub async fn post_request<S: AsRef<str>, T: AsRef<str>, U: AsRef<str>, V: AsRef<str>>(
+    code: S,
+    id: T,
+    input: U,
+    args: V,
+) -> Result<Response, String> {
     match Client::new()
         .post("https://rextester.com/rundotnet/api")
         .form(&[
@@ -30,14 +35,14 @@ pub async fn post_request<S: AsRef<str>, T: AsRef<str>, U: AsRef<str>, V: AsRef<
         .await
     {
         Ok(ok) => return Ok(ok),
-        Err(_) => return Err(String::from("failed to get response from the api."))
+        Err(_) => return Err(String::from("failed to get response from the api.")),
     };
 }
 
 pub async fn response_to_json(response: Response) -> Result<ApiResponse, String> {
     match response.json::<ApiResponse>().await {
         Ok(ok) => return Ok(ok),
-        Err(_) => return Err(String::from("the api sent a bad request."))
+        Err(_) => return Err(String::from("the api sent a bad request.")),
     };
 }
 

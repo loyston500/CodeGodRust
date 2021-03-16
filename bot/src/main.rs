@@ -6,12 +6,7 @@ use std::env;
 use serenity::async_trait;
 use serenity::client::Client;
 //use serenity::client::bridge::gateway::{ShardId, ShardManager};
-use serenity::framework::standard::{
-    StandardFramework,
-    macros::{
-        group
-    }
-};
+use serenity::framework::standard::{macros::group, StandardFramework};
 mod commands;
 use commands::misc::*;
 
@@ -25,11 +20,11 @@ use serde::Deserialize;
 struct Config {
     name: String,
     prefix: String,
-    bot_token_var: String
+    bot_token_var: String,
 }
 
-mod utils;
 mod compilers;
+mod utils;
 
 struct Handler;
 mod events;
