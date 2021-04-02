@@ -52,6 +52,30 @@ impl EventHandler for Handler {
             Err(_) => return,
         };
 
+        // this macro saved my life lol
+        macro_rules! send {
+            ($content:expr) => {
+                let _ = message.channel_id.say(&ctx, $content).await;
+            };
+        }
+
+        macro_rules! rem_reactions {
+            (ok $reac:ident) => {
+                match $reac {
+                    Ok(ok) => {
+                        let _ = ok.delete_all(&ctx).await;
+                    }
+                    Err(_) => (),
+                };
+            };
+
+            ($reac:ident) => {
+                let _ = $reac.delete_all(&ctx).await;
+            };
+        }
+
+        rem_reactions!(reaction);
+
         // spilt the message as args and the rest of the content.
 
         let mut content: &String = &message.content;
@@ -63,10 +87,7 @@ impl EventHandler for Handler {
         let (params, inputs, flags) = match utils::parser::parse_args(args) {
             Ok(ok) => ok,
             Err(err) => {
-                let _ = message
-                    .channel_id
-                    .say(&ctx, format!("**ArgumentParserError:** {}", err))
-                    .await;
+                send!(format!("**ArgumentParserError:** {}", err));
                 return;
             }
         };
@@ -74,10 +95,7 @@ impl EventHandler for Handler {
         let codeblocks = match utils::parser::parse_codeblocks(rest_content) {
             Ok(ok) => ok,
             Err(err) => {
-                let _ = message
-                    .channel_id
-                    .say(&ctx, format!("**CodeblockParserError:** {}", err))
-                    .await;
+                send!(format!("**CodeblockParserError:** {}", err));
                 return;
             }
         };
@@ -86,16 +104,7 @@ impl EventHandler for Handler {
 
         #[rustfmt::skip]
         let n = if codeblocks.len() > 1 {
-            let _ = message
-                .channel_id
-                .say(
-                    &ctx,
-                    format!(
-                        "which one do you want to run? Enter number from 1 to {}.",
-                        codeblocks.len()
-                    ),
-                )
-                .await;
+            send!(format!("Which one do you want to run? Enter number from 1 to {}.", codeblocks.len()));
             match message
                 .author
                 .await_reply(&ctx)
@@ -107,29 +116,20 @@ impl EventHandler for Handler {
                         match answer.content.parse::<usize>() {
                             Ok(ok) => {
                                 if ok > codeblocks.len() {
-                                    let _ = message
-                                        .channel_id
-                                        .say(
-                                            &ctx,
-                                            format!(
+                                    send!(format!(
                                                 "Sorry, that's too high{}. Cancelled.",
                                                 if ok == 20 + 49 {
                                                     " but, nice anyway"
                                                 } else {
                                                     ""
                                                 }
-                                            ),
-                                        )
-                                        .await;
+                                    ));
                                     return;
                                 }
                                 ok
                             }
                             Err(_) => {
-                                let _ = message
-                                    .channel_id
-                                    .say(&ctx, "Sorry, that's an invalid response. Cancelled.")
-                                    .await;
+                                send!("Sorry, that's an invalid response. Cancelled.");
                                 return;
                             }
                         }
@@ -142,10 +142,7 @@ impl EventHandler for Handler {
         let (lang, code) = match utils::parser::parse_codeblock_lang(&codeblocks[n]) {
             Ok(ok) => ok,
             Err(_) => {
-                let _ = message
-                    .channel_id
-                    .say(&ctx, "Looks like you forgot to mention the language lol.")
-                    .await;
+                send!("Looks like you forgot to mention the language lol.");
                 return;
             }
         };
@@ -188,10 +185,8 @@ impl EventHandler for Handler {
                 let lang_id: &usize = match rextester::client::LANG_ID_MAP.get(&lang) {
                     Some(some) => some,
                     None => {
-                        let _ = message
-                            .channel_id
-                            .say(&ctx, format!("The language `{}` cannot be compiled.", lang))
-                            .await;
+                        send!(format!("The language `{}` cannot be compiled.", lang));
+                        rem_reactions!(ok running);
                         return;
                     }
                 };
@@ -210,10 +205,8 @@ impl EventHandler for Handler {
                 {
                     Ok(ok) => ok,
                     Err(err) => {
-                        let _ = message
-                            .channel_id
-                            .say(&ctx, format!("**ClientError:** {}", err))
-                            .await;
+                        send!(format!("**ClientError:** {}", err));
+                        rem_reactions!(ok running);
                         return;
                     }
                 };
@@ -221,10 +214,8 @@ impl EventHandler for Handler {
                 let json = match rextester::client::response_to_json(response).await {
                     Ok(ok) => ok,
                     Err(err) => {
-                        let _ = message
-                            .channel_id
-                            .say(&ctx, format!("**ClientError:** {}", err))
-                            .await;
+                        send!(format!("**ClientError:** {}", err));
+                        rem_reactions!(ok running);
                         return;
                     }
                 };
@@ -241,10 +232,8 @@ impl EventHandler for Handler {
             // THE END
             "tio" | "tio.run" => {
                 if !tio::client::LANGS.contains(&lang) {
-                    let _ = message
-                        .channel_id
-                        .say(&ctx, format!("The language `{}` cannot be compiled.", lang))
-                        .await;
+                    send!(format!("The language `{}` cannot be compiled.", lang));
+                    rem_reactions!(ok running);
                     return;
                 }
 
@@ -258,23 +247,21 @@ impl EventHandler for Handler {
 
                 let compressed = tio::client::zlib_compress(tio_req).unwrap();
 
-                let response = match tio::client::post_request(dbg!(compressed
-                    [2..(compressed.len() - 4)]
-                    .to_vec()))
-                .await
-                {
-                    Ok(ok) => ok,
-                    Err(err) => {
-                        dbg!(format!("failed to do the tio request {}", err));
-                        return;
-                    }
-                };
+                let response =
+                    match tio::client::post_request(compressed[2..(compressed.len() - 4)].to_vec())
+                        .await
+                    {
+                        Ok(ok) => ok,
+                        Err(err) => {
+                            send!(format!("failed to do the tio request {}", err));
+                            rem_reactions!(ok running);
+                            return;
+                        }
+                    };
 
                 if response.status() != 200 {
-                    let _ = message
-                        .channel_id
-                        .say(&ctx, "**ServerError:** returned non Ok status.")
-                        .await;
+                    send!("**ServerError:** returned non Ok status.");
+                    rem_reactions!(ok running);
                     return;
                 }
 
@@ -293,7 +280,6 @@ impl EventHandler for Handler {
                     .unwrap()
                     .rsplitn(2, "\n\n")
                     .collect::<Vec<&str>>();
-                dbg!(&err_stats);
 
                 if err_stats.len() == 1 {
                     stats = err_stats[0].to_string();
@@ -302,17 +288,18 @@ impl EventHandler for Handler {
                     stats = err_stats[0].to_string();
                 }
 
+                stats = stats.replace("\n", ", ");
+
                 // ________________________________
 
                 final_output = format!("{}{}", &pre_slice.pop().unwrap(), &_error);
-
-                dbg!(pre_slice);
             }
 
             _ => {
                 // if the compiler is not supported
 
-                let _ = message.channel_id.say(&ctx, "invalid compiler name").await;
+                send!("invalid compiler name");
+                rem_reactions!(ok running);
                 return;
             }
         };
@@ -354,11 +341,6 @@ impl EventHandler for Handler {
                 .await;
         }
 
-        match running {
-            Ok(ok) => {
-                let _ = ok.delete_all(&ctx).await;
-            }
-            Err(_) => {}
-        };
+        rem_reactions!(ok running);
     }
 }
