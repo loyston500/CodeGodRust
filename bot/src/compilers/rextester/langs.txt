@@ -11,7 +11,7 @@ php               8
 pascal            9
 objective-c       10
 haskell           11
-ruby              12
+ruby   | rb       12
 perl              13
 lua               14
 nasm              15

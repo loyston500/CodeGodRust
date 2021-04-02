@@ -34,16 +34,16 @@ pub async fn post_request<S: AsRef<str>, T: AsRef<str>, U: AsRef<str>, V: AsRef<
         .send()
         .await
     {
-        Ok(ok) => return Ok(ok),
-        Err(_) => return Err(String::from("failed to get response from the api.")),
-    };
+        Ok(ok) => Ok(ok),
+        Err(_) => Err(String::from("failed to get response from the api.")),
+    }
 }
 
 pub async fn response_to_json(response: Response) -> Result<ApiResponse, String> {
     match response.json::<ApiResponse>().await {
-        Ok(ok) => return Ok(ok),
-        Err(_) => return Err(String::from("the api sent a bad request.")),
-    };
+        Ok(ok) => Ok(ok),
+        Err(_) => Err(String::from("the api sent a bad request.")),
+    }
 }
 
 pub fn parse_langs(content: String) -> Result<HashMap<String, usize>, String> {
