@@ -117,12 +117,12 @@ impl EventHandler for Handler {
                             Ok(ok) => {
                                 if ok > codeblocks.len() {
                                     send!(format!(
-                                                "Sorry, that's too high{}. Cancelled.",
-                                                if ok == 20 + 49 {
-                                                    " but, nice anyway"
-                                                } else {
-                                                    ""
-                                                }
+                                        "Sorry, that's too high{}. Cancelled.",
+                                        if ok == 20 + 49 {
+                                            " but, nice anyway"
+                                        } else {
+                                           ""
+                                        }
                                     ));
                                     return;
                                 }
@@ -148,6 +148,8 @@ impl EventHandler for Handler {
         };
 
         // WARNING some bad code below
+
+        let mut lang = params.get(&String::from("l")).unwrap_or(&lang).clone(); // oof
 
         let input = params
             .get(&String::from("i"))
@@ -190,6 +192,7 @@ impl EventHandler for Handler {
                         return;
                     }
                 };
+                
                 let lang_arg = rextester::client::ID_ARG_MAP
                     .get(lang_id)
                     .unwrap_or(&String::from(""))
@@ -219,6 +222,8 @@ impl EventHandler for Handler {
                         return;
                     }
                 };
+                
+                
                 let _result = json.Result.unwrap_or(String::from(""));
                 let _error = json.Errors.unwrap_or(String::from(""));
                 let _warnings = json.Warnings.unwrap_or(String::from(""));
@@ -232,11 +237,19 @@ impl EventHandler for Handler {
             // THE END
             "tio" | "tio.run" => {
                 if !tio::client::LANGS.contains(&lang) {
-                    send!(format!("The language `{}` cannot be compiled.", lang));
-                    rem_reactions!(ok running);
-                    return;
+                    match tio::client::ALIASES.get(&lang) {
+                        Some(some) => {
+                            lang = some.clone();
+                            dbg!(&lang);
+                        }
+                        None => {
+                            send!(format!("The language `{}` cannot be compiled.", lang));
+                            rem_reactions!(ok running);
+                            return;
+                        }
+                    }
                 }
-
+                dbg!(&lang);
                 // creates a request string exactly how tio needs it.
                 // And yes I'm doing unpack because I don't really think
                 // it'll turn out to be an Err.
@@ -274,6 +287,7 @@ impl EventHandler for Handler {
                 // WARNING a better implementation is needed
 
                 let pre_slice = &mut pre[1..(pre.len() - 1)].to_vec();
+                dbg!(&pre_slice);
 
                 let err_stats = pre_slice
                     .pop()
@@ -288,7 +302,7 @@ impl EventHandler for Handler {
                     stats = err_stats[0].to_string();
                 }
 
-                stats = stats.replace("\n", ", ");
+                stats = stats.trim().replace("\n", ", ");
 
                 // ________________________________
 
@@ -317,18 +331,26 @@ impl EventHandler for Handler {
             }
         );
 
-        if flags.contains(&String::from("clean")) {
-            let _ = message.channel_id.say(&ctx, desc).await;
+        // https://tenor.com/view/jeremy-clarkson-sometimes-my-genius-almost-frightening-driving-car-ride-gif-16463163
+
+        let result = match (if flags.contains(&String::from("clean")) {
+        
+            // just include --clean as a flag in your message and 
+            // you'll get your result without the embed
+            message.channel_id.say(&ctx, desc).await
         } else {
-            let _ = message
+            message
                 .channel_id
                 .send_message(&ctx, |m| {
                     m.embed(|e| {
+                        e.title("Jump to message");
+                        e.url(&message.link());
                         e.description(desc);
                         e.footer(|f| {
                             f.text(stats);
                             f
                         });
+
                         e.color(if (_error == String::from("")) {
                             0x00BA9C
                         } else {
@@ -338,9 +360,48 @@ impl EventHandler for Handler {
                     });
                     m
                 })
-                .await;
-        }
-
+                .await
+        }) {
+            Ok(ok) => ok,
+            Err(_) => {
+                send!("Failed to send the message");
+                rem_reactions!(ok running);
+                return;
+            }
+        };
+        
+        // Now since the message with code's output is sent, 
+        // the running code reaction can be removed.
+        
         rem_reactions!(ok running);
+        
+        // now react to the output message with 🗑️
+        // so when the code's author clicks it, the output gets deleted
+        
+        let trash_bin = result.react(&ctx, ReactionType::Unicode(String::from("🗑️"))).await;
+        
+        // trying `if let` syntax for the first time tho 
+        
+        if let Some(some_reaction) = result
+            .await_reaction(&ctx)
+            .timeout(Duration::from_secs(30))
+            .author_id(message.author.id)
+            .message_id(result.id)
+            .channel_id(result.channel_id).await {
+            
+            // not sure why I gotta do all of this for getting the emoji as an str.
+            
+            let emoji = &some_reaction.as_inner_ref().emoji.as_data();
+            
+            if emoji == "🗑️" {
+                let _ = result.delete(&ctx).await;
+            }
+            
+        } else {
+            rem_reactions!(ok trash_bin);
+        };
+        
+        
+        
     }
 }

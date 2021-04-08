@@ -1,4 +1,5 @@
-# syntax: NAME1 | NAME2... ID
+# SYNTAX: NAME1 | NAME2 ... ID
+
 py | python       24
 cs                1
 vb.net            2

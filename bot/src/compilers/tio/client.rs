@@ -1,7 +1,7 @@
 use crate::utils::misc::get_file_content;
 
 use std::char;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::io::prelude::*;
 
 use flate2::read::GzDecoder;
@@ -42,10 +42,12 @@ pub fn make_request_string<L: AsRef<str>, C: AsRef<str>, I: AsRef<str>>(
 
 pub fn zlib_compress<S: AsRef<str>>(req_string: S) -> Result<Vec<u8>, String> {
     let mut e = ZlibEncoder::new(Vec::new(), Compression::default());
+
     match e.write_all(req_string.as_ref().as_bytes()) {
         Ok(_) => (),
         Err(_) => return Err(String::from("failed to write to the encoder")),
     };
+
     match e.finish() {
         Ok(ok) => Ok(ok),
         Err(_) => Err(String::from("failed to compress")),
@@ -54,11 +56,13 @@ pub fn zlib_compress<S: AsRef<str>>(req_string: S) -> Result<Vec<u8>, String> {
 
 pub fn gzip_decompress(bytes: Vec<u8>) -> Result<String, String> {
     let mut decoder = GzDecoder::new(&bytes[..]);
+
     let mut string = String::new();
     match decoder.read_to_string(&mut string) {
         Ok(ok) => (),
         Err(_) => return Err(String::from("unable to decompress")),
     };
+
     Ok(string)
 }
 
@@ -77,16 +81,46 @@ pub async fn post_request(bytes: Vec<u8>) -> Result<Response, String> {
 
 pub fn parse_langs(content: String) -> Result<HashSet<String>, String> {
     let mut langs = HashSet::new();
+
     for (n, line_) in content.lines().enumerate() {
         let line = line_.trim();
         if (!line.starts_with("#")) && (line != "") {
             langs.insert(line.to_string());
         }
     }
+
     Ok(langs)
+}
+
+pub fn parse_aliases(content: String) -> Result<HashMap<String, String>, String> {
+    let mut aliases = HashMap::new();
+
+    for (n, line_) in content.lines().enumerate() {
+        let line = line_.trim();
+
+        if (!line.starts_with("#")) && (line != "") {
+            let mut tokens = line.split_whitespace().collect::<Vec<&str>>();
+            let lang = tokens.remove(0).to_string();
+
+            if tokens.len() == 0 {
+                return Err(format!(
+                    "Error at line {}, no alias to set for lang '{}'",
+                    n, lang
+                ));
+            }
+
+            for token in tokens {
+                aliases.insert(token.to_string().clone(), lang.clone());
+            }
+        }
+    }
+
+    Ok(aliases)
 }
 
 lazy_static! {
     pub static ref LANGS: HashSet<String> =
         parse_langs(get_file_content("compilers/tio/langs.txt").unwrap()).unwrap();
+    pub static ref ALIASES: HashMap<String, String> =
+        parse_aliases(get_file_content("compilers/tio/aliases.txt").unwrap()).unwrap();
 }

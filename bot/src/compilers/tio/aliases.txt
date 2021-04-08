@@ -1,0 +1,27 @@
+# SYNTAX: NAME ALIAS1 ALIAS2 ...
+# these are aliases for some languages that tio run supportes.
+# this way you don't need to write entire lang name for common ones. 
+
+python38pr python py
+
+python2-cpython python2
+
+python3-pypy pypy
+
+rust rs
+
+c-clang cpp
+
+brainfuck bf
+
+go golang
+
+java-jdk java
+
+kotlin kt
+
+ruby rb
+
+typescript ts
+
+javascript-node js cringe
