@@ -1,6 +1,5 @@
 use crate::utils::misc::get_file_content;
 
-use std::char;
 use std::collections::{HashMap, HashSet};
 use std::io::prelude::*;
 
@@ -105,7 +104,8 @@ pub fn parse_aliases(content: String) -> Result<HashMap<String, String>, String>
             if tokens.len() == 0 {
                 return Err(format!(
                     "Error at line {}, no alias to set for lang '{}'",
-                    n, lang
+                    n + 1,
+                    lang
                 ));
             }
 

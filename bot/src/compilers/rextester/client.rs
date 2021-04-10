@@ -50,20 +50,26 @@ pub fn parse_langs(content: String) -> Result<HashMap<String, usize>, String> {
     let mut lang_id_map: HashMap<String, usize> = HashMap::new();
     for (n, line_) in content.lines().enumerate() {
         let line = line_.trim();
+
         if (!line.starts_with("#")) && (line != "") {
             let line_split = line.rsplitn(2, " ").collect::<Vec<&str>>();
+
             if line_split.len() != 2 {
                 return Err(format!("Line {}, '{}', more than two terms", n, line_));
             }
+
             let id = match line_split[0].parse::<usize>() {
                 Ok(ok) => ok,
                 Err(_) => {
                     return Err(format!(
                         "Line {} '{}', cannot parse the term '{}' to an integer.",
-                        n, line_, line_split[0]
+                        n + 1,
+                        line_,
+                        line_split[0]
                     ))
                 }
             };
+
             for lang in line_split[1].split("|") {
                 lang_id_map.insert(lang.trim().to_string(), id.clone());
             }
@@ -78,18 +84,23 @@ pub fn parse_lang_args(content: String) -> Result<HashMap<usize, String>, String
         let line = line_.trim();
         if (!line.starts_with("#")) && (line != "") {
             let line_split = line.splitn(2, " ").collect::<Vec<&str>>();
+
             if line_split.len() != 2 {
                 return Err(format!("Line {}, '{}', more/less than two terms", n, line_));
             }
+
             let id = match line_split[0].parse::<usize>() {
                 Ok(ok) => ok,
                 Err(_) => {
                     return Err(format!(
                         "Line {} '{}', cannot parse the term '{}' to an integer.",
-                        n, line_, line_split[0]
+                        n + 1,
+                        line_,
+                        line_split[0]
                     ))
                 }
             };
+
             let args = line_split[1].trim().to_string();
             id_arg_map.insert(id, args);
         }

@@ -12,8 +12,7 @@ use serenity::model::id::EmojiId;
 
 // use lazy_static::lazy_static;
 
-use crate::compilers::rextester;
-use crate::compilers::tio;
+use crate::compilers::{rextester, tio, wandbox};
 use crate::utils;
 
 use crate::Handler;
@@ -192,7 +191,7 @@ impl EventHandler for Handler {
                         return;
                     }
                 };
-                
+
                 let lang_arg = rextester::client::ID_ARG_MAP
                     .get(lang_id)
                     .unwrap_or(&String::from(""))
@@ -222,8 +221,7 @@ impl EventHandler for Handler {
                         return;
                     }
                 };
-                
-                
+
                 let _result = json.Result.unwrap_or(String::from(""));
                 let _error = json.Errors.unwrap_or(String::from(""));
                 let _warnings = json.Warnings.unwrap_or(String::from(""));
@@ -309,6 +307,46 @@ impl EventHandler for Handler {
                 final_output = format!("{}{}", &pre_slice.pop().unwrap(), &_error);
             }
 
+            "wand" | "wandbox" => {
+                if !wandbox::client::LANGS.contains(&lang) {
+                    match wandbox::client::ALIASES.get(&lang) {
+                        Some(some) => {
+                            lang = some.clone();
+                            dbg!(&lang);
+                        }
+                        None => {
+                            send!(format!("The language `{}` cannot be compiled.", lang));
+                            rem_reactions!(ok running);
+                            return;
+                        }
+                    }
+                }
+
+                let response = match wandbox::client::post_request(code, lang, "", "", false).await
+                {
+                    Ok(ok) => ok,
+                    Err(err) => {
+                        send!(format!("**ClientError:** {}", err));
+                        rem_reactions!(ok running);
+                        return;
+                    }
+                };
+
+                let json = match wandbox::client::response_to_json(response).await {
+                    Ok(ok) => ok,
+                    Err(err) => {
+                        send!(format!("**ClientError:** {}", err));
+                        rem_reactions!(ok running);
+                        return;
+                    }
+                };
+
+                let status_code = json.status.unwrap_or(String::from("0"));
+                final_output = json.program_message.unwrap_or(String::from(""));
+                _error = if status_code == "0" {String::from("")} else {String::from("err")};
+                stats = format!("Status code: {}", status_code);
+            }
+
             _ => {
                 // if the compiler is not supported
 
@@ -324,7 +362,9 @@ impl EventHandler for Handler {
                 .get(&String::from("h"))
                 .unwrap_or(&String::from("css"))
                 .clone(),
-            if final_output.len() < 1950 {
+            if final_output.len() == 0 {
+                &"NO OUTPUT"
+            } else if final_output.len() < 1950 {
                 &final_output[..]
             } else {
                 &final_output[..1950]
@@ -334,8 +374,7 @@ impl EventHandler for Handler {
         // https://tenor.com/view/jeremy-clarkson-sometimes-my-genius-almost-frightening-driving-car-ride-gif-16463163
 
         let result = match (if flags.contains(&String::from("clean")) {
-        
-            // just include --clean as a flag in your message and 
+            // just include --clean as a flag in your message and
             // you'll get your result without the embed
             message.channel_id.say(&ctx, desc).await
         } else {
@@ -369,39 +408,38 @@ impl EventHandler for Handler {
                 return;
             }
         };
-        
-        // Now since the message with code's output is sent, 
+
+        // Now since the message with code's output is sent,
         // the running code reaction can be removed.
-        
+
         rem_reactions!(ok running);
-        
+
         // now react to the output message with 🗑️
         // so when the code's author clicks it, the output gets deleted
-        
-        let trash_bin = result.react(&ctx, ReactionType::Unicode(String::from("🗑️"))).await;
-        
-        // trying `if let` syntax for the first time tho 
-        
+
+        let trash_bin = result
+            .react(&ctx, ReactionType::Unicode(String::from("🗑️")))
+            .await;
+
+        // trying `if let` syntax for the first time tho
+
         if let Some(some_reaction) = result
             .await_reaction(&ctx)
             .timeout(Duration::from_secs(30))
             .author_id(message.author.id)
             .message_id(result.id)
-            .channel_id(result.channel_id).await {
-            
+            .channel_id(result.channel_id)
+            .await
+        {
             // not sure why I gotta do all of this for getting the emoji as an str.
-            
+
             let emoji = &some_reaction.as_inner_ref().emoji.as_data();
-            
+
             if emoji == "🗑️" {
                 let _ = result.delete(&ctx).await;
             }
-            
         } else {
             rem_reactions!(ok trash_bin);
         };
-        
-        
-        
     }
 }

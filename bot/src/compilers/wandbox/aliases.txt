@@ -1,0 +1,65 @@
+# SYNTAX: NAME ALIAS1 ALIAS2 ...
+# these are aliases for some languages that wnndbox supportes.
+# this way you don't need to write entire lang name for common ones.
+
+cpython-3.8.0 py python
+
+bash sh
+
+clang-head cpp
+
+elixir-head elixir
+
+erlang-head erlang
+
+cmake-head cmake
+
+coffeescript-head coffeescript
+
+dmd-head dmd
+
+fpc-head fpc
+
+fsharp-head fsharp fs
+
+go-head go
+
+groovy-3.0.7 groovy
+
+julia-head julia
+
+ldc-head ldc head
+
+lua-5.4.0 lua
+
+mono-head mono
+
+nim-head nim
+
+nodejs-head js javascript cringe
+
+ocaml-head ocaml
+
+openjdk-head java
+
+perl-head perl pl
+
+php-head php wtf
+
+r-head r
+
+ruby-head ruby rb
+
+rust-head rust rs
+
+sbcl-head sbcl
+
+scala-2.13.x scala
+
+sqlite-head sql
+
+swift-head swift
+
+vim-head vim
+
+zapcc-2017.08 zapcc
