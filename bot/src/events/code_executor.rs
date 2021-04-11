@@ -343,7 +343,11 @@ impl EventHandler for Handler {
 
                 let status_code = json.status.unwrap_or(String::from("0"));
                 final_output = json.program_message.unwrap_or(String::from(""));
-                _error = if status_code == "0" {String::from("")} else {String::from("err")};
+                _error = if status_code == "0" {
+                    String::from("")
+                } else {
+                    String::from("err")
+                };
                 stats = format!("Status code: {}", status_code);
             }
 
@@ -373,7 +377,25 @@ impl EventHandler for Handler {
 
         // https://tenor.com/view/jeremy-clarkson-sometimes-my-genius-almost-frightening-driving-car-ride-gif-16463163
 
-        let result = match (if flags.contains(&String::from("clean")) {
+        let result = match (if flags.contains(&String::from("file")) {
+            // creates a file out of final_output which contains
+            // the whole thing that the api returned.
+            let file_name = format!(
+                "output.{}",
+                params
+                    .get(&String::from("e"))
+                    .unwrap_or(&String::from("txt"))
+            );
+
+            message
+                .channel_id
+                .send_files(
+                    &ctx,
+                    vec![(final_output.as_bytes(), file_name.as_str())],
+                    |f| f,
+                )
+                .await
+        } else if flags.contains(&String::from("clean")) {
             // just include --clean as a flag in your message and
             // you'll get your result without the embed
             message.channel_id.say(&ctx, desc).await
@@ -390,11 +412,7 @@ impl EventHandler for Handler {
                             f
                         });
 
-                        e.color(if (_error == String::from("")) {
-                            0x00BA9C
-                        } else {
-                            0xFFCF24
-                        });
+                        e.color(if (_error == "") { 0x00BA9C } else { 0xFFCF24 });
                         e
                     });
                     m
