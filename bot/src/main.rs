@@ -6,7 +6,10 @@ use std::env;
 use serenity::async_trait;
 use serenity::client::Client;
 //use serenity::client::bridge::gateway::{ShardId, ShardManager};
+use serde::Deserialize;
 use serenity::framework::standard::{macros::group, StandardFramework};
+use lazy_static::lazy_static;
+
 mod commands;
 use commands::misc::*;
 
@@ -14,12 +17,11 @@ use commands::misc::*;
 #[commands(ping)]
 struct General;
 
-use serde::Deserialize;
-
 #[derive(Deserialize)]
 struct Config {
     name: String,
     prefix: String,
+    trigger_emoji: String,
     bot_token_var: String,
 }
 
@@ -29,30 +31,45 @@ mod utils;
 struct Handler;
 mod events;
 
+lazy_static! {
+    static ref CONFIG: Config = 
+        toml::from_str(
+            utils::misc::get_file_content("config.toml")
+                .expect("Cannot load the config file. The file maybe missing!")
+                .as_str()
+        ).expect("Error reading the config file. The file maybe corrupt.");
+}
+
 #[tokio::main]
 async fn main() {
-    let config_content: String = match utils::misc::get_file_content("config.toml") {
-        Ok(ok) => ok,
-        Err(_) => {
-            println!("Cannot load the config file. The file maybe missing!");
-            return;
-        }
-    };
+    let token = env::var(&CONFIG.bot_token_var)
+        .expect("Token not found :( maybe try doing `export DISCORD_TOKEN='token'`");
 
-    let config: Config = match toml::from_str(config_content.as_str()) {
-        Ok(ok) => ok,
-        Err(_) => {
-            println!("Error reading the config file. The file maybe corrupt.");
-            return;
-        }
-    };
+    // Showcase
+    println!("validating stuff...");
+
+    dbg!(compilers::rextester::client::LANG_ID_MAP.len());
+    dbg!(compilers::rextester::client::ID_ARG_MAP.len());
+
+    dbg!(compilers::tio::client::LANGS.len());
+    dbg!(compilers::tio::client::ALIASES.len());
+
+    dbg!(compilers::wandbox::client::LANGS.len());
+    dbg!(compilers::wandbox::client::ALIASES.len());
+
+    println!("starting the bot...");
+
+    if let Ok(logo_art) = utils::misc::get_file_content("assets/logo_art_rainbow.txt") {
+        println!("{}", logo_art);
+    }
+
+    // __________
 
     let framework = StandardFramework::new()
-        .configure(|c| c.prefix(&config.prefix)) // the default bot prefix
+        .configure(|c| c.prefix(&CONFIG.prefix)) // the default bot prefix
         .group(&GENERAL_GROUP);
 
     // Login with a bot token from the environment
-    let token = env::var(&config.bot_token_var).expect("Token not found :(");
     let mut client = Client::builder(token)
         .event_handler(Handler)
         .framework(framework)
@@ -60,7 +77,8 @@ async fn main() {
         .expect("Error creating client");
 
     // start listening for events by starting a single shard
-    if let Err(why) = client.start().await {
-        println!("An error occurred while running the client: {:?}", why);
+    match client.start().await {
+        Ok(_) => println!("The bot's running."),
+        Err(why) => println!("An error occurred while running the client: {:?}", why),
     }
 }

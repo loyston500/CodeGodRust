@@ -55,14 +55,14 @@ pub fn parse_langs(content: String) -> Result<HashMap<String, usize>, String> {
             let line_split = line.rsplitn(2, " ").collect::<Vec<&str>>();
 
             if line_split.len() != 2 {
-                return Err(format!("Line {}, '{}', more than two terms", n, line_));
+                return Err(format!("Line {}, `{}`, more than two terms", n, line_));
             }
 
             let id = match line_split[0].parse::<usize>() {
                 Ok(ok) => ok,
                 Err(_) => {
                     return Err(format!(
-                        "Line {} '{}', cannot parse the term '{}' to an integer.",
+                        "Line {} `{}`, cannot parse the term `{}` to an integer.",
                         n + 1,
                         line_,
                         line_split[0]
@@ -86,14 +86,17 @@ pub fn parse_lang_args(content: String) -> Result<HashMap<usize, String>, String
             let line_split = line.splitn(2, " ").collect::<Vec<&str>>();
 
             if line_split.len() != 2 {
-                return Err(format!("Line {}, '{}', more/less than two terms", n, line_));
+                return Err(format!(
+                    "Line {}, `{}`, need exactly two terms here.",
+                    n, line_
+                ));
             }
 
             let id = match line_split[0].parse::<usize>() {
                 Ok(ok) => ok,
                 Err(_) => {
                     return Err(format!(
-                        "Line {} '{}', cannot parse the term '{}' to an integer.",
+                        "Line {} `{}`, cannot parse the term `{}` to an integer.",
                         n + 1,
                         line_,
                         line_split[0]
@@ -109,8 +112,15 @@ pub fn parse_lang_args(content: String) -> Result<HashMap<usize, String>, String
 }
 
 lazy_static! {
-    pub static ref LANG_ID_MAP: HashMap<String, usize> =
-        parse_langs(get_file_content("compilers/rextester/langs.txt").unwrap()).unwrap();
-    pub static ref ID_ARG_MAP: HashMap<usize, String> =
-        parse_lang_args(get_file_content("compilers/rextester/args.txt").unwrap()).unwrap();
+    pub static ref LANG_ID_MAP: HashMap<String, usize> = parse_langs(
+        get_file_content("compilers/rextester/langs.txt")
+            .expect("failed to read rextester langs.txt")
+    )
+    .unwrap();
+    
+    pub static ref ID_ARG_MAP: HashMap<usize, String> = parse_lang_args(
+        get_file_content("compilers/rextester/args.txt")
+            .expect("failed to read rextester args.txt")
+    )
+    .unwrap();
 }

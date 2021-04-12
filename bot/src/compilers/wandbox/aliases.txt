@@ -1,5 +1,5 @@
 # SYNTAX: NAME ALIAS1 ALIAS2 ...
-# these are aliases for some languages that wnndbox supportes.
+# these are aliases for some languages that wandbox supportes.
 # this way you don't need to write entire lang name for common ones.
 
 cpython-3.8.0 py python

@@ -87,7 +87,7 @@ pub fn parse_aliases(content: String) -> Result<HashMap<String, String>, String>
 
             if tokens.len() == 0 {
                 return Err(format!(
-                    "Error at line {}, no alias to set for lang '{}'",
+                    "Error at line {}, no alias to set for lang `{}`",
                     n + 1,
                     lang
                 ));
@@ -107,6 +107,7 @@ lazy_static! {
         get_file_content("compilers/wandbox/langs.txt").expect("failed to read wandbox langs.txt")
     )
     .unwrap();
+    
     pub static ref ALIASES: HashMap<String, String> = parse_aliases(
         get_file_content("compilers/wandbox/aliases.txt")
             .expect("failed to read wandbox aliases.txt")

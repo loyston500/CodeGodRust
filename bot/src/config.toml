@@ -1,3 +1,4 @@
 name = 'CodeGod'
 prefix = 'cg.'
+trigger_emoji = "▶️"
 bot_token_var = 'DISCORD_TOKEN'

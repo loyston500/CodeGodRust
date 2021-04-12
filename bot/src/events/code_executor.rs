@@ -14,6 +14,7 @@ use serenity::model::id::EmojiId;
 
 use crate::compilers::{rextester, tio, wandbox};
 use crate::utils;
+use crate::CONFIG;
 
 use crate::Handler;
 
@@ -40,7 +41,7 @@ impl EventHandler for Handler {
 
         // checks if the reaction is the required emoji or not.
 
-        if dbg!(reaction.emoji.as_data()) != "✅" {
+        if dbg!(reaction.emoji.as_data()) != CONFIG.trigger_emoji {
             return;
         }
 
@@ -157,7 +158,7 @@ impl EventHandler for Handler {
 
         let compiler = params
             .get(&String::from("c"))
-            .unwrap_or(&String::from("rex"))
+            .unwrap_or(&String::from("tio"))
             .clone(); // here as well
 
         let mut final_output = String::from("...");
@@ -342,7 +343,11 @@ impl EventHandler for Handler {
                 };
 
                 let status_code = json.status.unwrap_or(String::from("0"));
-                final_output = json.program_message.unwrap_or(String::from(""));
+                final_output = format!(
+                    "{}{}",
+                    json.compiler_message.unwrap_or(String::from("")),
+                    json.program_message.unwrap_or(String::from(""))
+                );
                 _error = if status_code == "0" {
                     String::from("")
                 } else {

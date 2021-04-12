@@ -42,7 +42,7 @@ erlang            40
 elixir            41
 ocaml             42
 kotlin            43
-brainf |brainfuck 44
+bf | brainfuck    44
 fortran           45
 rust | rs         46
 clojure           47
