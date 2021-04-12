@@ -1,15 +1,15 @@
-#CodeGodRust [UNFINISHED]
+# CodeGodRust [UNFINISHED]
 A discord bot that can run your codes.
 
-##Why Rust?
+## Why Rust?
 Firstly, It's because I wanted to learn it, and also handle a project simultaneously.
 Secondly, the performance you get is incredible considering how easy is to write rust.
 Thirdly, everyone loves it.
 
-##How am I supposed to use it???
+## How am I supposed to use it???
 All you need to do is to write your code inside a codeblock (make sure you label the codeblock with a valid language) and then react to it with ▶ (the default emoji)
 
-##How do I run my own instance of it??
+## How do I run my own instance of it??
 Well, you just need to run these commands (assuming that you already have rust installed)
 ```bash
 # clones the repo
@@ -25,6 +25,6 @@ export DISCORD_TOKEN='your token'
 cargo run --release
 ```
 
-##Kk but, what about changing the prefix???
+## Kk but, what about changing the prefix???
 Just modify `config.toml` (located in CodeGodRust/bot/src) according to your needs 🙂
 
