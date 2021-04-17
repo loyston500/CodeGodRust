@@ -14,7 +14,7 @@ use serenity::model::id::EmojiId;
 
 use crate::compilers::{rextester, tio, wandbox};
 use crate::utils;
-use crate::CONFIG;
+use crate::utils::config::CONFIG;
 
 use crate::Handler;
 
@@ -41,7 +41,7 @@ impl EventHandler for Handler {
 
         // checks if the reaction is the required emoji or not.
 
-        if dbg!(reaction.emoji.as_data()) != CONFIG.trigger_emoji {
+        if dbg!(reaction.emoji.as_data()) != CONFIG.code_executor.trigger_emoji {
             return;
         }
 
@@ -233,7 +233,6 @@ impl EventHandler for Handler {
                 final_output = format!("{}{}{}", &_result, &_warnings, &_error);
             }
 
-            // THE END
             "tio" | "tio.run" => {
                 if !tio::client::LANGS.contains(&lang) {
                     match tio::client::ALIASES.get(&lang) {

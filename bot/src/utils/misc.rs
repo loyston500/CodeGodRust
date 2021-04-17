@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::io::Read;
 
-pub fn get_file_content(file_name: &str) -> Result<String, ()> {
-    let mut file = match File::open(file_name) {
+pub fn get_file_content<S: AsRef<str>>(file_name: S) -> Result<String, ()> {
+    let mut file = match File::open(file_name.as_ref()) {
         Ok(ok) => ok,
         Err(_) => {
             return Err(());

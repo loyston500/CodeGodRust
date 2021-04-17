@@ -1,4 +1,33 @@
+# you can set you token using this command `export BOT_TOKEN='your token here'`
+
+[bot]
 name = 'CodeGod'
 prefix = 'cg.'
+brief ='A discord bot that compiles your code.'
+token_variable = 'BOT_TOKEN'
+
+[code_executor]
 trigger_emoji = "▶️"
-bot_token_var = 'DISCORD_TOKEN'
+
+[mongodb_trigger_emoji]
+uri_variable = 'MONGODB_URI'
+database = 'codegod'
+collection = 'trigger_emoji'
+
+# Set stuff for the supported compilers
+# NOTE: the support for disabling a compiler is not added yet.
+
+[compiler_rextester]
+enable = false
+langs_path = 'compilers/rextester/langs.txt'
+args_path = 'compilers/rextester/args.txt'
+
+[compiler_tio]
+enable = true
+langs_path = 'compilers/tio/langs.txt'
+aliases_path = 'compilers/tio/aliases.txt'
+
+[compiler_wandbox]
+enable = true
+langs_path = 'compilers/wandbox/langs.txt'
+aliases_path = 'compilers/wandbox/aliases.txt'

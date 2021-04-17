@@ -6,10 +6,16 @@ use std::env;
 use serenity::async_trait;
 use serenity::client::Client;
 //use serenity::client::bridge::gateway::{ShardId, ShardManager};
+use lazy_static::lazy_static;
 use serde::Deserialize;
 use serenity::framework::standard::{macros::group, StandardFramework};
-use lazy_static::lazy_static;
 
+mod utils;
+use utils::config::CONFIG;
+
+mod compilers;
+
+// setup commands
 mod commands;
 use commands::misc::*;
 
@@ -17,32 +23,12 @@ use commands::misc::*;
 #[commands(ping)]
 struct General;
 
-#[derive(Deserialize)]
-struct Config {
-    name: String,
-    prefix: String,
-    trigger_emoji: String,
-    bot_token_var: String,
-}
-
-mod compilers;
-mod utils;
-
 struct Handler;
 mod events;
 
-lazy_static! {
-    static ref CONFIG: Config = 
-        toml::from_str(
-            utils::misc::get_file_content("config.toml")
-                .expect("Cannot load the config file. The file maybe missing!")
-                .as_str()
-        ).expect("Error reading the config file. The file maybe corrupt.");
-}
-
 #[tokio::main]
 async fn main() {
-    let token = env::var(&CONFIG.bot_token_var)
+    let token = env::var(&CONFIG.bot.token_variable)
         .expect("Token not found :( maybe try doing `export DISCORD_TOKEN='token'`");
 
     // Showcase
@@ -66,7 +52,7 @@ async fn main() {
     // __________
 
     let framework = StandardFramework::new()
-        .configure(|c| c.prefix(&CONFIG.prefix)) // the default bot prefix
+        .configure(|c| c.prefix(&CONFIG.bot.prefix)) // the default bot prefix
         .group(&GENERAL_GROUP);
 
     // Login with a bot token from the environment
@@ -77,8 +63,7 @@ async fn main() {
         .expect("Error creating client");
 
     // start listening for events by starting a single shard
-    match client.start().await {
-        Ok(_) => println!("The bot's running."),
-        Err(why) => println!("An error occurred while running the client: {:?}", why),
+    if let Err(why) = client.start().await {
+        println!("An error occurred while running the client: {:?}", why);
     }
 }

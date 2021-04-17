@@ -1,3 +1,4 @@
+use crate::utils::config::CONFIG;
 use crate::utils::misc::get_file_content;
 
 use std::collections::{HashMap, HashSet};
@@ -104,12 +105,12 @@ pub fn parse_aliases(content: String) -> Result<HashMap<String, String>, String>
 
 lazy_static! {
     pub static ref LANGS: HashSet<String> = parse_langs(
-        get_file_content("compilers/wandbox/langs.txt").expect("failed to read wandbox langs.txt")
+        get_file_content(&CONFIG.compiler_wandbox.langs_path)
+            .expect("failed to read wandbox langs.txt")
     )
     .unwrap();
-    
     pub static ref ALIASES: HashMap<String, String> = parse_aliases(
-        get_file_content("compilers/wandbox/aliases.txt")
+        get_file_content(&CONFIG.compiler_wandbox.aliases_path)
             .expect("failed to read wandbox aliases.txt")
     )
     .unwrap();

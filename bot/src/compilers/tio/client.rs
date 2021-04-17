@@ -1,3 +1,4 @@
+use crate::utils::config::CONFIG;
 use crate::utils::misc::get_file_content;
 
 use std::collections::{HashMap, HashSet};
@@ -120,12 +121,12 @@ pub fn parse_aliases(content: String) -> Result<HashMap<String, String>, String>
 
 lazy_static! {
     pub static ref LANGS: HashSet<String> = parse_langs(
-        get_file_content("compilers/tio/langs.txt").expect("failed to read tio langs.txt")
+        get_file_content(&CONFIG.compiler_tio.langs_path).expect("failed to read tio langs.txt")
     )
     .unwrap();
-    
     pub static ref ALIASES: HashMap<String, String> = parse_aliases(
-        get_file_content("compilers/tio/aliases.txt").expect("failed to read tio aliases.txt")
+        get_file_content(&CONFIG.compiler_tio.aliases_path)
+            .expect("failed to read tio aliases.txt")
     )
     .unwrap();
 }

@@ -1,3 +1,4 @@
+use crate::utils::config::CONFIG;
 use crate::utils::misc::get_file_content;
 
 use std::collections::HashMap;
@@ -113,13 +114,12 @@ pub fn parse_lang_args(content: String) -> Result<HashMap<usize, String>, String
 
 lazy_static! {
     pub static ref LANG_ID_MAP: HashMap<String, usize> = parse_langs(
-        get_file_content("compilers/rextester/langs.txt")
+        get_file_content(&CONFIG.compiler_rextester.langs_path)
             .expect("failed to read rextester langs.txt")
     )
     .unwrap();
-    
     pub static ref ID_ARG_MAP: HashMap<usize, String> = parse_lang_args(
-        get_file_content("compilers/rextester/args.txt")
+        get_file_content(&CONFIG.compiler_rextester.args_path)
             .expect("failed to read rextester args.txt")
     )
     .unwrap();
