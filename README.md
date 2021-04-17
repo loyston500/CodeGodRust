@@ -20,7 +20,7 @@ git clone https://github.com/loyston500/CodeGodRust
 cd CodeGodRust/bot/src
 
 # sets your bot token as an environment variable
-export DISCORD_TOKEN='your token'
+export BOT_TOKEN='your bot token'
 
 # builds and runs the bot 
 cargo +nightly run --release
