@@ -17,27 +17,28 @@ pub struct CodeExecutor {
 
 #[derive(Deserialize)]
 pub struct CompilerRextester {
-    pub enable: bool,
+    pub enabled: bool,
     pub langs_path: String,
     pub args_path: String,
 }
 
 #[derive(Deserialize)]
 pub struct CompilerTio {
-    pub enable: bool,
+    pub enabled: bool,
     pub langs_path: String,
     pub aliases_path: String,
 }
 
 #[derive(Deserialize)]
 pub struct CompilerWandbox {
-    pub enable: bool,
+    pub enabled: bool,
     pub langs_path: String,
     pub aliases_path: String,
 }
 
 #[derive(Deserialize)]
 pub struct MongdbTriggerEmoji {
+    pub enabled: bool,
     pub uri_variable: String,
     pub database: String,
     pub collection: String,

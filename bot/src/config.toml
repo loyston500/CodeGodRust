@@ -9,25 +9,30 @@ token_variable = 'BOT_TOKEN'
 [code_executor]
 trigger_emoji = "▶️"
 
+# usage of database is set to true by default
+# you can turn it off by setting enabled = false
+
 [mongodb_trigger_emoji]
+enabled = true
+cache_limit = 100
 uri_variable = 'MONGODB_URI'
 database = 'codegod'
-collection = 'trigger_emoji'
+collection = 'trigger_emojis'
 
-# Set stuff for the supported compilers
+# Set stuff for the supported compilers, MODIFYING THEM IS NOT RECOMMENDED
 # NOTE: the support for disabling a compiler is not added yet.
 
 [compiler_rextester]
-enable = false
+enabled = true
 langs_path = 'compilers/rextester/langs.txt'
 args_path = 'compilers/rextester/args.txt'
 
 [compiler_tio]
-enable = true
+enabled = true
 langs_path = 'compilers/tio/langs.txt'
 aliases_path = 'compilers/tio/aliases.txt'
 
 [compiler_wandbox]
-enable = true
+enabled = true
 langs_path = 'compilers/wandbox/langs.txt'
 aliases_path = 'compilers/wandbox/aliases.txt'

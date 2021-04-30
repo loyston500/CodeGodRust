@@ -1,6 +1,5 @@
 // The Rust rewrite of CodeGod.
 
-#![feature(str_split_once)]
 use std::env;
 
 use serenity::async_trait;
@@ -13,6 +12,9 @@ use serenity::framework::standard::{macros::group, StandardFramework};
 mod utils;
 use utils::config::CONFIG;
 
+mod database;
+use database::trigger_emoji::MongodbTriggerEmojis;
+
 mod compilers;
 
 // setup commands
@@ -20,11 +22,21 @@ mod commands;
 use commands::misc::*;
 
 #[group]
-#[commands(ping)]
+#[commands(ping, setemoji)]
 struct General;
 
 struct Handler;
 mod events;
+
+struct Database;
+
+use serenity::prelude::TypeMapKey;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+impl TypeMapKey for Database {
+    type Value = Arc<RwLock<MongodbTriggerEmojis>>;
+}
 
 #[tokio::main]
 async fn main() {
@@ -61,6 +73,24 @@ async fn main() {
         .framework(framework)
         .await
         .expect("Error creating client");
+
+    if CONFIG.mongodb_trigger_emoji.enabled {
+        println!("initializing database...");
+        // Open the data lock in write mode, so keys can be inserted to it.
+        let mut data = client.data.write().await;
+
+        let db = MongodbTriggerEmojis::init(
+            env::var(&CONFIG.mongodb_trigger_emoji.uri_variable).expect("Mongodb uri not found"),
+            &CONFIG.mongodb_trigger_emoji.database,
+            &CONFIG.mongodb_trigger_emoji.collection,
+        )
+        .await
+        .expect("failed to initialize the database.");
+
+        dbg!(db.get_emoji(710863889029398640).await);
+
+        data.insert::<Database>(Arc::new(RwLock::new(db)));
+    }
 
     // start listening for events by starting a single shard
     if let Err(why) = client.start().await {

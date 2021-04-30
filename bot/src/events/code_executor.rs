@@ -15,7 +15,7 @@ use serenity::model::id::EmojiId;
 use crate::compilers::{rextester, tio, wandbox};
 use crate::utils;
 use crate::utils::config::CONFIG;
-
+use crate::Database;
 use crate::Handler;
 
 #[async_trait]
@@ -39,9 +39,24 @@ impl EventHandler for Handler {
             return;
         }
 
+        // yeah you can disable the database
+
+        let emoji = if reaction.guild_id.is_some() && CONFIG.mongodb_trigger_emoji.enabled {
+            let data = ctx.data.read().await;
+            data.get::<Database>()
+                .expect("Error: database is not initialized properlly.")
+                .clone()
+                .read()
+                .await
+                .get_emoji(reaction.guild_id.unwrap().0)
+                .await
+                .unwrap_or(CONFIG.code_executor.trigger_emoji.clone())
+        } else {
+            CONFIG.code_executor.trigger_emoji.clone()
+        };
         // checks if the reaction is the required emoji or not.
 
-        if dbg!(reaction.emoji.as_data()) != CONFIG.code_executor.trigger_emoji {
+        if dbg!(dbg!(reaction.emoji.as_data()) != dbg!(emoji)) {
             return;
         }
 

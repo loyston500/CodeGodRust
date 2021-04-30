@@ -1,4 +1,3 @@
-#![feature(str_split_once)]
 mod compilers;
 mod utils;
 
