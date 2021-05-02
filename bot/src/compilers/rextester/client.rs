@@ -36,14 +36,14 @@ pub async fn post_request<S: AsRef<str>, T: AsRef<str>, U: AsRef<str>, V: AsRef<
         .await
     {
         Ok(ok) => Ok(ok),
-        Err(_) => Err(String::from("failed to get response from the api.")),
+        Err(_) => Err(String::from("Failed to get response from the api.")),
     }
 }
 
 pub async fn response_to_json(response: Response) -> Result<ApiResponse, String> {
     match response.json::<ApiResponse>().await {
         Ok(ok) => Ok(ok),
-        Err(_) => Err(String::from("the api sent a bad request.")),
+        Err(_) => Err(String::from("The api sent a bad request.")),
     }
 }
 
@@ -115,12 +115,12 @@ pub fn parse_lang_args(content: String) -> Result<HashMap<usize, String>, String
 lazy_static! {
     pub static ref LANG_ID_MAP: HashMap<String, usize> = parse_langs(
         get_file_content(&CONFIG.compiler_rextester.langs_path)
-            .expect("failed to read rextester langs.txt")
+            .expect("Failed to read rextester langs.txt")
     )
     .unwrap();
     pub static ref ID_ARG_MAP: HashMap<usize, String> = parse_lang_args(
         get_file_content(&CONFIG.compiler_rextester.args_path)
-            .expect("failed to read rextester args.txt")
+            .expect("Failed to read rextester args.txt")
     )
     .unwrap();
 }

@@ -56,7 +56,7 @@ impl EventHandler for Handler {
         };
         // checks if the reaction is the required emoji or not.
 
-        if dbg!(dbg!(reaction.emoji.as_data()) != dbg!(emoji)) {
+        if reaction.emoji.as_data() != emoji {
             return;
         }
 
@@ -102,7 +102,7 @@ impl EventHandler for Handler {
         let (params, inputs, flags) = match utils::parser::parse_args(args) {
             Ok(ok) => ok,
             Err(err) => {
-                send!(format!("**ArgumentParserError:** {}", err));
+                send!(format!("Your argument syntax is invalid. {}.", err));
                 return;
             }
         };
@@ -110,7 +110,7 @@ impl EventHandler for Handler {
         let codeblocks = match utils::parser::parse_codeblocks(rest_content) {
             Ok(ok) => ok,
             Err(err) => {
-                send!(format!("**CodeblockParserError:** {}", err));
+                send!(format!("Your codeblock syntax is invalid. {}.", err));
                 return;
             }
         };
@@ -156,8 +156,8 @@ impl EventHandler for Handler {
 
         let (lang, code) = match utils::parser::parse_codeblock_lang(&codeblocks[n]) {
             Ok(ok) => ok,
-            Err(_) => {
-                send!("Looks like you forgot to mention the language lol.");
+            Err(err) => {
+                send!(format!("Your codeblock syntax is invalid lol. \n{}", err));
                 return;
             }
         };
@@ -202,7 +202,7 @@ impl EventHandler for Handler {
                 let lang_id: &usize = match rextester::client::LANG_ID_MAP.get(&lang) {
                     Some(some) => some,
                     None => {
-                        send!(format!("The language `{}` cannot be compiled.", lang));
+                        send!(format!("Compiler `{}` does not support running `{}` codes. You may try using a different compiler.", &compiler, lang));
                         rem_reactions!(ok running);
                         return;
                     }
@@ -223,7 +223,7 @@ impl EventHandler for Handler {
                 {
                     Ok(ok) => ok,
                     Err(err) => {
-                        send!(format!("**ClientError:** {}", err));
+                        send!(format!("**ServerError:** {}", err));
                         rem_reactions!(ok running);
                         return;
                     }
@@ -232,7 +232,7 @@ impl EventHandler for Handler {
                 let json = match rextester::client::response_to_json(response).await {
                     Ok(ok) => ok,
                     Err(err) => {
-                        send!(format!("**ClientError:** {}", err));
+                        send!(format!("**ServerError:** {}", err));
                         rem_reactions!(ok running);
                         return;
                     }
@@ -253,16 +253,16 @@ impl EventHandler for Handler {
                     match tio::client::ALIASES.get(&lang) {
                         Some(some) => {
                             lang = some.clone();
-                            dbg!(&lang);
+                            // dbg!(&lang);
                         }
                         None => {
-                            send!(format!("The language `{}` cannot be compiled.", lang));
+                            send!(format!("Compiler `{}` does not support running `{}` codes. You may try using a different compiler.", &compiler, lang));
                             rem_reactions!(ok running);
                             return;
                         }
                     }
                 }
-                dbg!(&lang);
+                // dbg!(&lang);
                 // creates a request string exactly how tio needs it.
                 // And yes I'm doing unpack because I don't really think
                 // it'll turn out to be an Err.
@@ -279,14 +279,17 @@ impl EventHandler for Handler {
                     {
                         Ok(ok) => ok,
                         Err(err) => {
-                            send!(format!("failed to do the tio request {}", err));
+                            send!(format!(
+                                "**ServerError:** Failed to do the tio request {}",
+                                err
+                            ));
                             rem_reactions!(ok running);
                             return;
                         }
                     };
 
                 if response.status() != 200 {
-                    send!("**ServerError:** returned non Ok status.");
+                    send!("**ServerError:** Returned non Ok status.");
                     rem_reactions!(ok running);
                     return;
                 }
@@ -300,7 +303,7 @@ impl EventHandler for Handler {
                 // WARNING a better implementation is needed
 
                 let pre_slice = &mut pre[1..(pre.len() - 1)].to_vec();
-                dbg!(&pre_slice);
+                // dbg!(&pre_slice);
 
                 let err_stats = pre_slice
                     .pop()
@@ -327,10 +330,10 @@ impl EventHandler for Handler {
                     match wandbox::client::ALIASES.get(&lang) {
                         Some(some) => {
                             lang = some.clone();
-                            dbg!(&lang);
+                            // dbg!(&lang);
                         }
                         None => {
-                            send!(format!("The language `{}` cannot be compiled.", lang));
+                            send!(format!("Compiler `{}` does not support running `{}` codes. You may try using a different compiler.", &compiler, lang));
                             rem_reactions!(ok running);
                             return;
                         }
@@ -341,7 +344,7 @@ impl EventHandler for Handler {
                 {
                     Ok(ok) => ok,
                     Err(err) => {
-                        send!(format!("**ClientError:** {}", err));
+                        send!(format!("**ServerError:** {}", err));
                         rem_reactions!(ok running);
                         return;
                     }
@@ -350,7 +353,7 @@ impl EventHandler for Handler {
                 let json = match wandbox::client::response_to_json(response).await {
                     Ok(ok) => ok,
                     Err(err) => {
-                        send!(format!("**ClientError:** {}", err));
+                        send!(format!("**ServerError:** {}", err));
                         rem_reactions!(ok running);
                         return;
                     }
@@ -373,7 +376,7 @@ impl EventHandler for Handler {
             _ => {
                 // if the compiler is not supported
 
-                send!("invalid compiler name");
+                send!("Sorry, that's an invalid compiler name. Cancelled.");
                 rem_reactions!(ok running);
                 return;
             }
@@ -440,7 +443,7 @@ impl EventHandler for Handler {
         }) {
             Ok(ok) => ok,
             Err(_) => {
-                send!("Failed to send the message");
+                send!("**ClientError:** Failed to send the message.");
                 rem_reactions!(ok running);
                 return;
             }

@@ -25,6 +25,7 @@ pub async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
+/// sets the trigger emoji of the server.
 #[command]
 pub async fn setemoji(ctx: &Context, msg: &Message) -> CommandResult {
     if msg.guild_id.is_none() {
@@ -66,7 +67,7 @@ pub async fn setemoji(ctx: &Context, msg: &Message) -> CommandResult {
 
         if let Ok(_) = result {
             resp.edit(&ctx, |m| {
-                m.content(format!("Successfully set the trigger emoji to {}", emoji))
+                m.content(format!("Successfully set the trigger emoji to {}.", emoji))
             })
             .await?;
         } else {

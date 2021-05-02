@@ -45,12 +45,12 @@ pub fn zlib_compress<S: AsRef<str>>(req_string: S) -> Result<Vec<u8>, String> {
 
     match e.write_all(req_string.as_ref().as_bytes()) {
         Ok(_) => (),
-        Err(_) => return Err(String::from("failed to write to the encoder")),
+        Err(_) => return Err(String::from("Failed to write to the encoder")),
     };
 
     match e.finish() {
         Ok(ok) => Ok(ok),
-        Err(_) => Err(String::from("failed to compress")),
+        Err(_) => Err(String::from("Failed to compress")),
     }
 }
 
@@ -60,7 +60,7 @@ pub fn gzip_decompress(bytes: Vec<u8>) -> Result<String, String> {
     let mut string = String::new();
     match decoder.read_to_string(&mut string) {
         Ok(ok) => (),
-        Err(_) => return Err(String::from("unable to decompress")),
+        Err(_) => return Err(String::from("Unable to decompress")),
     };
 
     Ok(string)
@@ -75,7 +75,7 @@ pub async fn post_request(bytes: Vec<u8>) -> Result<Response, String> {
         .await
     {
         Ok(ok) => Ok(ok),
-        Err(_) => Err(String::from("failed to get response from the api.")),
+        Err(_) => Err(String::from("Failed to get response from the api.")),
     }
 }
 
@@ -121,12 +121,12 @@ pub fn parse_aliases(content: String) -> Result<HashMap<String, String>, String>
 
 lazy_static! {
     pub static ref LANGS: HashSet<String> = parse_langs(
-        get_file_content(&CONFIG.compiler_tio.langs_path).expect("failed to read tio langs.txt")
+        get_file_content(&CONFIG.compiler_tio.langs_path).expect("Failed to read tio langs.txt")
     )
     .unwrap();
     pub static ref ALIASES: HashMap<String, String> = parse_aliases(
         get_file_content(&CONFIG.compiler_tio.aliases_path)
-            .expect("failed to read tio aliases.txt")
+            .expect("Failed to read tio aliases.txt")
     )
     .unwrap();
 }

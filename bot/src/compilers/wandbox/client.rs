@@ -52,14 +52,14 @@ pub async fn post_request<S: AsRef<str>, T: AsRef<str>, U: AsRef<str>, V: AsRef<
         .await
     {
         Ok(ok) => Ok(ok),
-        Err(_) => Err(String::from("failed to get response from the api.")),
+        Err(_) => Err(String::from("Failed to get response from the api")),
     }
 }
 
 pub async fn response_to_json(response: Response) -> Result<ApiResponse, String> {
     match response.json::<ApiResponse>().await {
         Ok(ok) => Ok(ok),
-        Err(_) => Err(String::from("the api sent a bad request.")),
+        Err(_) => Err(String::from("The api sent a bad request")),
     }
 }
 
@@ -106,12 +106,12 @@ pub fn parse_aliases(content: String) -> Result<HashMap<String, String>, String>
 lazy_static! {
     pub static ref LANGS: HashSet<String> = parse_langs(
         get_file_content(&CONFIG.compiler_wandbox.langs_path)
-            .expect("failed to read wandbox langs.txt")
+            .expect("Failed to read wandbox langs.txt")
     )
     .unwrap();
     pub static ref ALIASES: HashMap<String, String> = parse_aliases(
         get_file_content(&CONFIG.compiler_wandbox.aliases_path)
-            .expect("failed to read wandbox aliases.txt")
+            .expect("Failed to read wandbox aliases.txt")
     )
     .unwrap();
 }

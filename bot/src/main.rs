@@ -43,7 +43,6 @@ async fn main() {
     let token = env::var(&CONFIG.bot.token_variable)
         .expect("Token not found :( maybe try doing `export DISCORD_TOKEN='token'`");
 
-    // Showcase
     println!("validating stuff...");
 
     dbg!(compilers::rextester::client::LANG_ID_MAP.len());
@@ -56,6 +55,8 @@ async fn main() {
     dbg!(compilers::wandbox::client::ALIASES.len());
 
     println!("starting the bot...");
+
+    // Showcase
 
     if let Ok(logo_art) = utils::misc::get_file_content("assets/logo_art_rainbow.txt") {
         println!("{}", logo_art);
@@ -85,7 +86,7 @@ async fn main() {
             &CONFIG.mongodb_trigger_emoji.collection,
         )
         .await
-        .expect("failed to initialize the database.");
+        .expect("Failed to initialize the database");
 
         dbg!(db.get_emoji(710863889029398640).await);
 
