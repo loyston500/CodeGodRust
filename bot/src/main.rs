@@ -41,7 +41,7 @@ impl TypeMapKey for Database {
 #[tokio::main]
 async fn main() {
     let token = env::var(&CONFIG.bot.token_variable)
-        .expect("Token not found :( maybe try doing `export DISCORD_TOKEN='token'`");
+        .expect("Token not found :( maybe try doing `export BOT_TOKEN='token'`");
 
     println!("validating stuff...");
 

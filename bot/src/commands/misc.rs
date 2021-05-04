@@ -12,28 +12,41 @@ pub async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
     let start = SystemTime::now();
     let mut message = msg.channel_id.say(&ctx.http, "Ping?").await?;
     let end = SystemTime::now();
-    match end.duration_since(start) {
-        Ok(difference) => {
-            message
-                .edit(ctx, |m| {
-                    m.content(format!("Pong!\nlatency: {:?}", difference))
-                })
-                .await?
-        }
-        Err(_) => message.edit(ctx, |m| m.content("Pong!")).await?,
-    };
+
+    if let Ok(duration) = end.duration_since(start) {
+        message
+            .edit(ctx, |m| {
+                m.content(format!("Pong!\nLatency: {:?}", duration))
+            })
+            .await?;
+    }
     Ok(())
 }
 
 /// sets the trigger emoji of the server.
 #[command]
 pub async fn setemoji(ctx: &Context, msg: &Message) -> CommandResult {
-    if msg.guild_id.is_none() {
-        let _ = msg
-            .channel_id
-            .say(&ctx, "This command can only be used in a guild/server.")
-            .await?;
-        return Ok(());
+    match msg.guild(&ctx).await {
+        Some(guild) => {
+            if !guild
+                .member_permissions(&ctx, msg.author.id)
+                .await?
+                .administrator()
+            {
+                msg.channel_id
+                    .say(&ctx, "I'm sorry, this command is admin only.")
+                    .await?;
+                return Ok(());
+            }
+        }
+
+        None => {
+            msg.channel_id
+                .say(&ctx, "This command can only be used in a guild/server.")
+                .await?;
+
+            return Ok(());
+        }
     }
 
     let mut resp = msg

@@ -53,7 +53,7 @@ pub fn parse_codeblock_lang<S: AsRef<str>>(content: S) -> Result<(String, String
     match content.split_once("\n") {
         Some(some) => Ok((some.0.to_string(), some.1.to_string())),
         None => Err(String::from(
-            "The correct codeblock syntax is \\`\\`\\`lang\ncode\n\\`\\`\\`",
+            "The correct codeblock syntax is \n\\`\\`\\`lang\ncode\n\\`\\`\\`",
         )),
     }
 }
